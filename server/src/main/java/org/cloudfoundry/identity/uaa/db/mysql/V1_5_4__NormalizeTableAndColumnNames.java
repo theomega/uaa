@@ -49,7 +49,7 @@ public class V1_5_4__NormalizeTableAndColumnNames extends DatabaseInformation1_5
                         new DatabaseInformation1_5_3.ColumnMapper());
         for (DatabaseInformation1_5_3.ColumnInfo column : columns) {
             if (processColumn(column)) {
-                String sql = column.sql.replaceAll("2001-01-01 .*", "'2001-01-01 01:01:01.000001'");
+                String sql = column.sql;//git .replaceAll("2001-01-01 .*", "'2001-01-01 01:01:01.000001'");
                 logger.info("Renaming column: [" + sql + "]");
                 jdbcTemplate.execute(sql);
             }
