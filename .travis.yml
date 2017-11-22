@@ -114,6 +114,7 @@ cache:
   apt: true
   directories:
   - $HOME/.gradle
+  - /var/lib/docker
 
 before_install:
 - ulimit -c
