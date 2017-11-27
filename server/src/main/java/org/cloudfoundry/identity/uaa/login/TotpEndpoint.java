@@ -106,6 +106,8 @@ public class TotpEndpoint {
                 authMethods.addAll(Arrays.asList("otp", "mfa"));
                 sessionAuth.setAuthenticationMethods(authMethods);
                 SecurityContextHolder.getContext().setAuthentication(sessionAuth);
+                //TODO add User Authenticated Success Event Here
+
                 redirectingHandler.onAuthenticationSuccess(request, response, sessionAuth);
                 return new ModelAndView("home", Collections.emptyMap());
             }

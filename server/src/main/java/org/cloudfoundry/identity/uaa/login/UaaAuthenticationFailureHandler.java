@@ -37,21 +37,19 @@ public class UaaAuthenticationFailureHandler implements AuthenticationFailureHan
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+        addCookie(response, request.getContextPath());
         if(exception != null) {
             if (exception instanceof PasswordChangeRequiredException) {
                 request.getSession().setAttribute(FORCE_PASSWORD_EXPIRED_USER, ((PasswordChangeRequiredException) exception).getAuthentication());
-                addCookie(response, request.getContextPath());
                 response.sendRedirect(request.getContextPath() + "/force_password_change");
                 return;
             }
             if (exception instanceof MfaAuthenticationRequiredException) {
                 request.getSession().setAttribute(MFA_VALIDATE_USER, ((MfaAuthenticationRequiredException) exception).getAuthentication());
-                addCookie(response, request.getContextPath());
                 response.sendRedirect(request.getContextPath() + "/login/mfa/register");
                 return;
             }
         }
-        addCookie(response, request.getContextPath());
         if (delegate!=null) {
             delegate.onAuthenticationFailure(request, response, exception);
         }

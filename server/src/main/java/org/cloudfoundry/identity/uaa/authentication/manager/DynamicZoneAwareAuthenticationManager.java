@@ -73,7 +73,12 @@ public class DynamicZoneAwareAuthenticationManager implements AuthenticationMana
 
         if (uaaProvider.isActive()) {
             AuthenticationManagerConfiguration uaaConfig = new AuthenticationManagerConfiguration(internalUaaAuthenticationManager, null);
-            uaaConfig.setStopIf(AccountNotVerifiedException.class, AuthenticationPolicyRejectionException.class, PasswordChangeRequiredException.class, MfaAuthenticationRequiredException.class);
+            uaaConfig.setStopIf(
+                AccountNotVerifiedException.class,
+                AuthenticationPolicyRejectionException.class,
+                PasswordChangeRequiredException.class,
+                MfaAuthenticationRequiredException.class
+            );
             delegates.add(uaaConfig);
         }
 
