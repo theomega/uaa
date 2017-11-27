@@ -17,6 +17,7 @@ import org.cloudfoundry.identity.uaa.authentication.PasswordChangeRequiredExcept
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.ExceptionMappingAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 
 import javax.servlet.ServletException;
@@ -29,9 +30,9 @@ import static org.cloudfoundry.identity.uaa.login.ForcePasswordChangeController.
 import static org.cloudfoundry.identity.uaa.login.TotpEndpoint.MFA_VALIDATE_USER;
 
 public class UaaAuthenticationFailureHandler implements AuthenticationFailureHandler, LogoutHandler {
-    private AuthenticationFailureHandler delegate;
+    private ExceptionMappingAuthenticationFailureHandler delegate;
 
-    public UaaAuthenticationFailureHandler(AuthenticationFailureHandler delegate) {
+    public UaaAuthenticationFailureHandler(ExceptionMappingAuthenticationFailureHandler delegate) {
         this.delegate = delegate;
     }
 
@@ -41,13 +42,9 @@ public class UaaAuthenticationFailureHandler implements AuthenticationFailureHan
         if(exception != null) {
             if (exception instanceof PasswordChangeRequiredException) {
                 request.getSession().setAttribute(FORCE_PASSWORD_EXPIRED_USER, ((PasswordChangeRequiredException) exception).getAuthentication());
-                response.sendRedirect(request.getContextPath() + "/force_password_change");
-                return;
             }
             if (exception instanceof MfaAuthenticationRequiredException) {
                 request.getSession().setAttribute(MFA_VALIDATE_USER, ((MfaAuthenticationRequiredException) exception).getAuthentication());
-                response.sendRedirect(request.getContextPath() + "/login/mfa/register");
-                return;
             }
         }
         if (delegate!=null) {

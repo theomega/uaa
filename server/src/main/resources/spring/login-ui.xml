@@ -356,6 +356,10 @@
                        value="/login?error=account_locked"/>
                 <entry key="org.cloudfoundry.identity.uaa.authentication.AccountNotPreCreatedException"
                        value="/login?error=account_not_precreated"/>
+                <entry key="org.cloudfoundry.identity.uaa.authentication.PasswordChangeRequiredException"
+                       value="/force_password_change"/>
+                <entry key="org.cloudfoundry.identity.uaa.authentication.MfaAuthenticationRequiredException"
+                       value="/login/mfa/register"/>
             </map>
         </property>
         <property name="defaultFailureUrl" value="/login?error=login_failure"/>
