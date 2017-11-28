@@ -251,6 +251,12 @@ public class LoginMockMvcTests extends InjectedMockContextTest {
     }
 
     @Test
+    public void testHome() throws Exception {
+        getMockMvc().perform(get("/home"))
+            .andExpect(status().isFound());
+    }
+
+    @Test
     public void testLoginMfaRedirect() throws Exception {
         MockHttpSession session = new MockHttpSession();
 

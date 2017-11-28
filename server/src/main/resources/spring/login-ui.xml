@@ -298,26 +298,15 @@
         <access-denied-handler ref="loginEntryPoint"/>
     </http>
 
-    <http name="totpSecurity"
-          pattern="/login/mfa/**"
-          entry-point-ref="loginEntryPoint"
-          use-expressions="false"
-          xmlns="http://www.springframework.org/schema/security">
-        <intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-        <csrf disabled="false"
-              token-repository-ref="loginCookieCsrfRepository"
-                />
-        <access-denied-handler ref="loginEntryPoint"/>
-    </http>
-
     <http name="uiSecurity"
           request-matcher-ref="uiRequestMatcher"
-          use-expressions="false"
+          use-expressions="true"
           authentication-manager-ref="zoneAwareAuthzAuthenticationManager"
           xmlns="http://www.springframework.org/schema/security">
-        <intercept-url pattern="/login**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-        <intercept-url pattern="/login/idp_discovery" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-        <intercept-url pattern="/**" access="IS_AUTHENTICATED_FULLY"/>
+        <intercept-url pattern="/login**" access="isAnonymous()"/>
+        <intercept-url pattern="/login/mfa/**" access="isAnonymous()"/>
+        <intercept-url pattern="/login/idp_discovery" access="isAnonymous()"/>
+        <intercept-url pattern="/**" access="isFullyAuthenticated()"/>
         <form-login login-page="/login"
                     username-parameter="username"
                     password-parameter="password"
@@ -328,8 +317,9 @@
                     default-target-url="/"/>
         <!--<logout logout-url="/logout.do" success-handler-ref="logoutHandler" invalidate-session="true"/>-->
         <custom-filter ref="clientRedirectStateCache" before="FORM_LOGIN_FILTER"/>
-        <custom-filter ref="logoutFilter" after="LOGOUT_FILTER"/>
         <custom-filter ref="samlLogoutFilter" before="LOGOUT_FILTER"/>
+        <custom-filter ref="logoutFilter" after="LOGOUT_FILTER"/>
+
         <csrf disabled="false"
               token-repository-ref="loginCookieCsrfRepository"
               request-matcher-ref="uiCookeCsrfRequestMatcher"/>
