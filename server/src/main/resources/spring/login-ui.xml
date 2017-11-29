@@ -612,7 +612,6 @@
         <property name="userGoogleMfaCredentialsProvisioning" ref="userGoogleMfaCredentialsProvisioning"/>
         <property name="mfaProviderProvisioning" ref="mfaProviderProvisioning" />
         <property name="googleAuthenticatorService" ref="googleAuthenticatorAdapter" />
-        <property name="redirectingHandler" ref="successRedirectHandler"/>
         <property name="mfaCompleteUrl" ref="mfaCompleteUrl"/>
     </bean>
 

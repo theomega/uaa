@@ -125,7 +125,7 @@ public class TotpEndpointMockMvcTests extends InjectedMockContextTest{
         int code = getMFACodeFromSession();
 
         MockHttpServletResponse response = performPostVerifyWithCode(code).andReturn().getResponse();
-        assertEquals("/", response.getRedirectedUrl());
+        assertEquals("/login/mfa/completed", response.getRedirectedUrl());
 
         getMockMvc().perform(get("/")
                 .session(session))
@@ -137,7 +137,7 @@ public class TotpEndpointMockMvcTests extends InjectedMockContextTest{
         session = new MockHttpSession();
         performLoginWithSession();
         performPostVerifyWithCode(code)
-            .andExpect(view().name("home"));
+            .andExpect(redirectedUrl("/login/mfa/completed"));
     }
 
     @Test
@@ -156,17 +156,33 @@ public class TotpEndpointMockMvcTests extends InjectedMockContextTest{
         //Not using param function because params won't end up in paramsMap.
         String oauthUrl = "/oauth/authorize?client_id=auth-client-id&client_secret=secret&redirect_uri=http://example.com";
         getMockMvc().perform(get(oauthUrl)
-                .session(session)
-                .with(cookieCsrf()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("http://localhost/login"));
+                                 .session(session)
+                                 .with(cookieCsrf()))
+            .andExpect(status().is3xxRedirection())
+            .andDo(print())
+            .andExpect(redirectedUrl("http://localhost/login"));
 
-        performLoginWithSession().andExpect(redirectedUrl("/login/mfa/register"));
+        performLoginWithSession().andExpect(redirectedUrl("http://localhost"+oauthUrl));
+
+        getMockMvc().perform(get(oauthUrl)
+                                 .session(session)
+                                 .with(cookieCsrf()))
+            .andExpect(status().is3xxRedirection())
+            .andDo(print())
+            .andExpect(redirectedUrl("/login/mfa/register"));
+
         performGetMfaRegister();
 
         int code = getMFACodeFromSession();
         performPostVerifyWithCode(code)
-                .andExpect(redirectedUrl("http://localhost/oauth/authorize?client_id=auth-client-id&client_secret=secret&redirect_uri=http://example.com"));
+            .andExpect(redirectedUrl("/login/mfa/completed"));
+
+        getMockMvc().perform(get("/login/mfa/completed")
+                                 .session(session)
+                                 .with(cookieCsrf()))
+            .andExpect(status().is3xxRedirection())
+            .andDo(print())
+            .andExpect(redirectedUrl("http://localhost/oauth/authorize?client_id=auth-client-id&client_secret=secret&redirect_uri=http://example.com"));
     }
 
     @Test
@@ -175,7 +191,7 @@ public class TotpEndpointMockMvcTests extends InjectedMockContextTest{
                     .param("code", "1234")
                     .with(cookieCsrf()))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/login"));
+                .andExpect(redirectedUrl("http://localhost/login"));
     }
 
     @Test
@@ -188,7 +204,8 @@ public class TotpEndpointMockMvcTests extends InjectedMockContextTest{
         int code = getMFACodeFromSession();
 
         performPostVerifyWithCode(code)
-            .andExpect(view().name("home"));
+            .andDo(print())
+            .andExpect(redirectedUrl("/login/mfa/completed"));
 
         UserGoogleMfaCredentials activeCreds = jdbcUserGoogleMfaCredentialsProvisioning.retrieve(user.getId(), mfaProvider.getId());
         assertNotNull(activeCreds);
@@ -210,8 +227,23 @@ public class TotpEndpointMockMvcTests extends InjectedMockContextTest{
 
         int code = getMFACodeFromSession();
 
-        performPostVerifyWithCode(code)
+        MockHttpServletResponse response = performPostVerifyWithCode(code).andReturn().getResponse();
+        assertEquals("/login/mfa/completed", response.getRedirectedUrl());
+
+        response = getMockMvc().perform(
+            get(response.getRedirectedUrl())
+                .session(session)
+        )
+            .andExpect(status().isFound())
+            .andReturn().getResponse();
+
+        getMockMvc().perform(
+            get(response.getRedirectedUrl())
+                .session(session)
+        )
+            .andExpect(status().isOk())
             .andExpect(view().name("home"));
+
 
         UserGoogleMfaCredentials activeCreds = jdbcUserGoogleMfaCredentialsProvisioning.retrieve(user.getId(), mfaProvider.getId());
         assertNotNull(activeCreds);
@@ -229,7 +261,21 @@ public class TotpEndpointMockMvcTests extends InjectedMockContextTest{
 
         code = getMFACodeFromSession();
 
-        performPostVerifyWithCode(code)
+        response = performPostVerifyWithCode(code).andReturn().getResponse();
+        assertEquals("/login/mfa/completed", response.getRedirectedUrl());
+
+        response = getMockMvc().perform(
+            get(response.getRedirectedUrl())
+                .session(session)
+        )
+            .andExpect(status().isFound())
+            .andReturn().getResponse();
+
+        getMockMvc().perform(
+            get(response.getRedirectedUrl())
+                .session(session)
+        )
+            .andExpect(status().isOk())
             .andExpect(view().name("home"));
     }
 
@@ -256,7 +302,7 @@ public class TotpEndpointMockMvcTests extends InjectedMockContextTest{
         int code = getMFACodeFromSession();
 
         MockHttpServletResponse response = performPostVerifyWithCode(code).andReturn().getResponse();
-        assertEquals("/", response.getRedirectedUrl());
+        assertEquals("/login/mfa/completed", response.getRedirectedUrl());
 
         getMockMvc().perform(get("/")
             .session(session))
@@ -268,7 +314,7 @@ public class TotpEndpointMockMvcTests extends InjectedMockContextTest{
         session = new MockHttpSession();
         performLoginWithSession();
         performPostVerifyWithCode(code)
-            .andExpect(view().name("home"));
+            .andExpect(redirectedUrl("/login/mfa/completed"));
     }
 
     private ScimUser createUser() throws Exception{
@@ -282,11 +328,11 @@ public class TotpEndpointMockMvcTests extends InjectedMockContextTest{
     }
 
     private ResultActions performLoginWithSession() throws Exception {
-        return getMockMvc().perform( post("/login.do")
-            .session(session)
-            .param("username", user.getUserName())
-            .param("password", password)
-            .with(cookieCsrf()))
+        return getMockMvc().perform(post("/login.do")
+                                        .session(session)
+                                        .param("username", user.getUserName())
+                                        .param("password", password)
+                                        .with(cookieCsrf()))
             .andDo(print())
             .andExpect(status().isFound());
     }
@@ -312,8 +358,10 @@ public class TotpEndpointMockMvcTests extends InjectedMockContextTest{
     }
 
     private void redirectToMFARegistration() throws Exception {
-        performLoginWithSession()
-                .andExpect(redirectedUrl("/login/mfa/register"));
+        String location = performLoginWithSession().andReturn().getResponse().getHeader("Location");
+        getMockMvc().perform(get(location)
+                                 .session(session))
+            .andExpect(redirectedUrl("/login/mfa/register"));
     }
 
     private int getMFACodeFromSession() {
