@@ -36,7 +36,7 @@ public class TotpEndpointTest {
     private UaaAuthentication uaaAuthentication;
 
     @Rule
-    public ExpectedException expection = ExpectedException.none();
+    public ExpectedException exception = ExpectedException.none();
     private GoogleAuthenticatorAdapter googleAuthenticatorService;
     private MfaProvider<GoogleMfaProviderConfig> mfaProvider;
     private MfaProvider<GoogleMfaProviderConfig> otherMfaProvider;
