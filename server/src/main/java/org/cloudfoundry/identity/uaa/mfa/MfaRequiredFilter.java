@@ -58,7 +58,7 @@ public class MfaRequiredFilter extends GenericFilterBean {
         HttpServletRequest request = (HttpServletRequest)req;
         HttpServletResponse response = (HttpServletResponse)res;
 
-        switch (getNextStep(request, response)) {
+        switch (getNextStep(request)) {
             case INVALID_AUTH:
                 logger.debug("Unrecognized authentication object:" + getAuthenticationLogInfo());
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid authentication object for UI operations.");
@@ -68,7 +68,7 @@ public class MfaRequiredFilter extends GenericFilterBean {
             case MFA_OK:
                 chain.doFilter(request, response);
                 break;
-            case REQUIRES_MFA:
+            case MFA_REQUIRED:
                 logger.debug("Request requires MFA, redirecting to MFA flow for " + getAuthenticationLogInfo());
                 cache.saveRequest(request, response);
                 sendRedirect(redirect, request, response);
@@ -78,7 +78,7 @@ public class MfaRequiredFilter extends GenericFilterBean {
                 SavedRequest savedRequest = cache.getRequest(request, response);
                 if (savedRequest != null) {
                     logger.debug("Redirecting request to " + savedRequest.getRedirectUrl());
-                    response.sendRedirect(savedRequest.getRedirectUrl());
+                    sendRedirect(savedRequest.getRedirectUrl(), request, response);
                 } else {
                     logger.debug("Redirecting request to /");
                     sendRedirect("/", request, response);
@@ -87,7 +87,7 @@ public class MfaRequiredFilter extends GenericFilterBean {
         }
     }
 
-    private String getAuthenticationLogInfo() {
+    protected String getAuthenticationLogInfo() {
         Authentication a = SecurityContextHolder.getContext().getAuthentication();
         if (a == null) {
             return null;
@@ -109,16 +109,16 @@ public class MfaRequiredFilter extends GenericFilterBean {
         return result.toString();
     }
 
-    private enum MfaNextStep {
+    public enum MfaNextStep {
         NOT_AUTHENTICATED,
         MFA_IN_PROGRESS,
-        REQUIRES_MFA,
+        MFA_REQUIRED,
         MFA_OK,
         MFA_COMPLETED,
         INVALID_AUTH
     }
 
-    protected MfaNextStep getNextStep(HttpServletRequest request, HttpServletResponse response) {
+    protected MfaNextStep getNextStep(HttpServletRequest request) {
         Authentication a = SecurityContextHolder.getContext().getAuthentication();
         if (a == null) {
             return MfaNextStep.NOT_AUTHENTICATED;
@@ -137,12 +137,12 @@ public class MfaRequiredFilter extends GenericFilterBean {
             return MfaNextStep.MFA_IN_PROGRESS;
         }
         if (!inProgressMatcher.matches(request) && !uaaAuth.getAuthenticationMethods().contains("mfa")) {
-            return MfaNextStep.REQUIRES_MFA;
+            return MfaNextStep.MFA_REQUIRED;
         }
         return MfaNextStep.MFA_OK;
     }
 
-    private void sendRedirect(String redirectUrl, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    protected void sendRedirect(String redirectUrl, HttpServletRequest request, HttpServletResponse response) throws IOException {
         StringBuilder url = new StringBuilder(
             redirectUrl.startsWith("/") ? request.getContextPath() : ""
         );
@@ -150,7 +150,7 @@ public class MfaRequiredFilter extends GenericFilterBean {
         response.sendRedirect(url.toString());
     }
 
-    private boolean mfaRequired() {
+    protected boolean mfaRequired() {
         return IdentityZoneHolder.get().getConfig().getMfaConfig().isEnabled();
     }
 }
