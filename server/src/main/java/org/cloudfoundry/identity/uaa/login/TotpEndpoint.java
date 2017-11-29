@@ -22,9 +22,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -34,7 +31,6 @@ import java.util.Set;
 
 @Controller
 public class TotpEndpoint {
-    public static final String MFA_VALIDATE_USER = "MFA_VALIDATE_USER";
 
     private UserGoogleMfaCredentialsProvisioning userGoogleMfaCredentialsProvisioning;
     private MfaProviderProvisioning mfaProviderProvisioning;
@@ -48,7 +44,7 @@ public class TotpEndpoint {
     }
 
     @RequestMapping(value = {"/login/mfa/register"}, method = RequestMethod.GET)
-    public String generateQrUrl(HttpSession session, Model model) throws NoSuchAlgorithmException, WriterException, IOException, UaaPrincipalIsNotInSession {
+    public String generateQrUrl(Model model) throws NoSuchAlgorithmException, WriterException, IOException, UaaPrincipalIsNotInSession {
 
         UaaPrincipal uaaPrincipal = getSessionAuthPrincipal();
 
@@ -67,7 +63,7 @@ public class TotpEndpoint {
     }
 
     @RequestMapping(value = {"/login/mfa/manual"}, method = RequestMethod.GET)
-    public String manualRegistration(HttpSession session, Model model) throws UaaPrincipalIsNotInSession {
+    public String manualRegistration(Model model) throws UaaPrincipalIsNotInSession {
         UaaPrincipal uaaPrincipal = getSessionAuthPrincipal();
         String providerName = IdentityZoneHolder.get().getConfig().getMfaConfig().getProviderName();
         MfaProvider provider = mfaProviderProvisioning.retrieveByName(providerName, IdentityZoneHolder.get().getId());
@@ -85,7 +81,7 @@ public class TotpEndpoint {
     }
 
     @RequestMapping(value = {"/login/mfa/verify"}, method = RequestMethod.GET)
-    public ModelAndView totpAuthorize(HttpSession session, Model model) throws UaaPrincipalIsNotInSession {
+    public ModelAndView totpAuthorize(Model model) throws UaaPrincipalIsNotInSession {
         UaaPrincipal uaaPrincipal = getSessionAuthPrincipal();
         return renderEnterCodePage(model, uaaPrincipal);
 
@@ -93,10 +89,7 @@ public class TotpEndpoint {
 
     @RequestMapping(value = {"/login/mfa/verify.do"}, method = RequestMethod.POST)
     public ModelAndView validateCode(Model model,
-                             HttpSession session,
-                             HttpServletRequest request,
-                             HttpServletResponse response,
-                             @RequestParam("code") String code)
+                                     @RequestParam("code") String code)
             throws NoSuchAlgorithmException, IOException, UaaPrincipalIsNotInSession {
         UaaAuthentication uaaAuth = getUaaAuthentication();
         UaaPrincipal uaaPrincipal = getSessionAuthPrincipal();
