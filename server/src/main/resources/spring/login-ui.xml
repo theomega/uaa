@@ -213,34 +213,6 @@
         <constructor-arg value="/oauth/authorize**"/>
     </bean>
 
-    <bean id="uiRequestMatcher" class="org.springframework.security.web.util.matcher.OrRequestMatcher">
-        <constructor-arg>
-            <list>
-                <bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
-                    <constructor-arg value="/"/>
-                </bean>
-                <bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
-                    <constructor-arg value="/oauth/**"/>
-                </bean>
-                <bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
-                    <constructor-arg value="/login**"/>
-                </bean>
-                <bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
-                    <constructor-arg value="/login/mfa/**"/>
-                </bean>
-                <bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
-                    <constructor-arg value="/login/idp_discovery"/>
-                </bean>
-                <bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
-                    <constructor-arg value="/logout.do**"/>
-                </bean>
-                <bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
-                    <constructor-arg value="/profile"/>
-                </bean>
-            </list>
-        </constructor-arg>
-    </bean>
-
     <bean id="samlLogoutHandlers" class="java.util.ArrayList">
         <constructor-arg>
             <util:list>
@@ -389,40 +361,6 @@
         <constructor-arg name="delegate" ref="errorMessageAuthenticationFailureHandler"/>
     </bean>
 
-
-<!--
-    <security:http name="openIdSecurity" use-expressions="false">
-        <security:intercept-url pattern="/**" access="IS_AUTHENTICATED_FULLY"/>
-        <security:custom-filter before="FIRST" ref="metadataGeneratorFilter"/>
-        <security:custom-filter after="FIRST" ref="httpsHeaderFilter"/>
-        <security:custom-filter before="BASIC_AUTH_FILTER" ref="idpMetadataGeneratorFilter"/>
-        <security:custom-filter after="BASIC_AUTH_FILTER" ref="samlFilter"/>
-        <security:custom-filter after="FILTER_SECURITY_INTERCEPTOR" ref="samlIdpLoginFilter"/>
-        <security:custom-filter ref="oauth2ClientFilter" after="EXCEPTION_TRANSLATION_FILTER"/>
-        <security:logout logout-url="/logout" success-handler-ref="logoutHandler"/>
-        <security:openid-login login-page="/login" user-service-ref="openIdUserDetailsService"
-                               authentication-failure-url="/login?error=true">
-            <security:attribute-exchange identifier-match=".*myopenid.com.*">
-                <security:openid-attribute name="email" type="http://schema.openid.net/contact/email"
-                                           required="true"/>
-                <security:openid-attribute name="fullname" type="http://schema.openid.net/namePerson"
-                                           required="true"/>
-            </security:attribute-exchange>
-            <security:attribute-exchange identifier-match=".*">
-                <security:openid-attribute name="email" type="http://axschema.org/contact/email"
-                                           required="true" count="1"/>
-                <security:openid-attribute name="firstname" type="http://axschema.org/namePerson/first"
-                                           required="true"/>
-                <security:openid-attribute name="lastname" type="http://axschema.org/namePerson/last"
-                                           required="true"/>
-                <security:openid-attribute name="fullname" type="http://axschema.org/namePerson"
-                                           required="true"/>
-            </security:attribute-exchange>
-        </security:openid-login>
-        <security:anonymous enabled="false"/>
-        <security:csrf disabled="true"/>
-    </security:http>
-    -->
 
     <bean id="httpsHeaderFilter" class="org.cloudfoundry.identity.uaa.security.web.HttpsHeaderFilter"/>
 
