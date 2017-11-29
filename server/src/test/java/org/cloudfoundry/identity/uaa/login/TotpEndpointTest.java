@@ -15,16 +15,17 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.common.util.RandomValueStringGenerator;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import static org.cloudfoundry.identity.uaa.login.TotpEndpoint.MFA_VALIDATE_USER;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -75,17 +76,17 @@ public class TotpEndpointTest {
         endpoint.setGoogleAuthenticatorService(googleAuthenticatorService);
 
         mockSuccessHandler = mock(SavedRequestAwareAuthenticationSuccessHandler.class);
-        endpoint.setRedirectingHandler(mockSuccessHandler);
 
         mockRequest = mock(HttpServletRequest.class);
         mockResponse = mock(HttpServletResponse.class);
 
-        when(session.getAttribute(MFA_VALIDATE_USER)).thenReturn(uaaAuthentication);
+        SecurityContextHolder.getContext().setAuthentication(uaaAuthentication);
     }
 
     @After
     public void cleanUp() throws Exception {
         IdentityZoneHolder.get().getConfig().getMfaConfig().setEnabled(false);
+        SecurityContextHolder.clearContext();
     }
 
     @Test
@@ -153,7 +154,7 @@ public class TotpEndpointTest {
 
         ModelAndView returnView = endpoint.validateCode(mock(Model.class), session, mockRequest, mockResponse,  Integer.toString(code));
 
-        assertEquals("home", returnView.getViewName());
+        assertEquals("/login/mfa/completed", ((RedirectView)returnView.getView()).getUrl());
     }
 
     @Test
