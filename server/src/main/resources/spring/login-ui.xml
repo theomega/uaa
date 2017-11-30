@@ -332,7 +332,7 @@
         <security:custom-filter after="FIRST" ref="httpsHeaderFilter"/>
         <security:custom-filter before="CHANNEL_FILTER" ref="idpMetadataGeneratorFilter"/>
         <security:custom-filter after="CHANNEL_FILTER" ref="samlFilter"/>
-        <security:custom-filter after="CSRF_FILTER" ref="samlIdpLoginFilter"/>
+        <security:custom-filter after="FILTER_SECURITY_INTERCEPTOR" ref="samlIdpLoginFilter"/>
         <form-login login-page="/login"
                     username-parameter="username"
                     password-parameter="password"
