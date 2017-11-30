@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.savedrequest.RequestCache;
@@ -63,6 +64,7 @@ public class MfaRequiredFilterTests {
     private RequestCache requestCache;
     private MfaRequiredFilter filter;
     private MockHttpServletRequest request;
+    private UsernamePasswordAuthenticationToken usernameAuthentication;
     private AnonymousAuthenticationToken anonymous;
     private UaaAuthentication authentication;
     private HttpServletResponse response;
@@ -78,6 +80,7 @@ public class MfaRequiredFilterTests {
                                   "/login/mfa/completed")
         );
         request = new MockHttpServletRequest();
+        usernameAuthentication = new UsernamePasswordAuthenticationToken("fake-principal","fake-credentials");
         anonymous = new AnonymousAuthenticationToken("fake-key", "fake-principal", singletonList(new SimpleGrantedAuthority("test")));
         authentication = new UaaAuthentication(
             new UaaPrincipal("fake-id", "fake-username", "email@email.com", "origin", "", "uaa"),
@@ -120,8 +123,8 @@ public class MfaRequiredFilterTests {
 
     @Test
     public void authentication_log_info_unknown() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(anonymous);
-        assertThat(filter.getAuthenticationLogInfo(), containsString("Unknown Auth=org.springframework.security.authentication.AnonymousAuthenticationToken"));
+        SecurityContextHolder.getContext().setAuthentication(usernameAuthentication);
+        assertThat(filter.getAuthenticationLogInfo(), containsString("Unknown Auth=org.springframework.security.authentication.UsernamePasswordAuthenticationToken"));
         assertThat(filter.getAuthenticationLogInfo(), containsString("fake-principal"));
     }
 
@@ -131,8 +134,14 @@ public class MfaRequiredFilterTests {
     }
 
     @Test
-    public void next_step_unknown_authentication() throws Exception {
+    public void next_step_anonymous() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(anonymous);
+        assertSame(NOT_AUTHENTICATED, filter.getNextStep(request));
+    }
+
+    @Test
+    public void next_step_unknown_authentication() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(usernameAuthentication);
         assertSame(INVALID_AUTH, filter.getNextStep(request));
     }
 

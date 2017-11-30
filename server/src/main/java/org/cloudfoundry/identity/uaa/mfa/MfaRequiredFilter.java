@@ -20,6 +20,7 @@ import org.apache.commons.logging.LogFactory;
 import org.cloudfoundry.identity.uaa.authentication.UaaAuthentication;
 import org.cloudfoundry.identity.uaa.authentication.UaaPrincipal;
 import org.cloudfoundry.identity.uaa.zone.IdentityZoneHolder;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.savedrequest.RequestCache;
@@ -120,7 +121,7 @@ public class MfaRequiredFilter extends GenericFilterBean {
 
     protected MfaNextStep getNextStep(HttpServletRequest request) {
         Authentication a = SecurityContextHolder.getContext().getAuthentication();
-        if (a == null) {
+        if (a == null || a instanceof AnonymousAuthenticationToken) {
             return MfaNextStep.NOT_AUTHENTICATED;
         }
         if (!(a instanceof UaaAuthentication)) {
