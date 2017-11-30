@@ -341,7 +341,7 @@
                     authentication-failure-handler-ref="uaaAuthenticationFailureHandler"
                     authentication-details-source-ref="authenticationDetailsSource"
                     default-target-url="/"/>
-        <custom-filter ref="clientRedirectStateCache" after="FORM_LOGIN_FILTER"/>
+        <custom-filter ref="clientRedirectStateCache" after="CAS_FILTER"/>
         <custom-filter ref="mfaRequiredFilter" before="FORM_LOGIN_FILTER"/>
         <custom-filter ref="logoutFilter" after="LOGOUT_FILTER"/>
         <custom-filter ref="samlLogoutFilter" before="LOGOUT_FILTER"/>
