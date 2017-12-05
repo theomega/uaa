@@ -3,6 +3,7 @@ package org.cloudfoundry.identity.uaa.provider.saml;
 import org.apache.commons.httpclient.contrib.ssl.StrictSSLProtocolSocketFactory;
 import org.cloudfoundry.identity.uaa.provider.SamlIdentityProviderDefinition;
 import org.cloudfoundry.identity.uaa.util.JsonUtils;
+import org.cloudfoundry.identity.uaa.util.TestUaaUrlBuilder;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.util.ReflectionUtils;
@@ -124,7 +125,7 @@ public class SamlIdentityProviderDefinitionTests {
 
     @Test
     public void test_Get_URL_When_Valid() throws Exception {
-        definition.setMetaDataLocation("http://login.oms.identity.team/saml/metadata");
+        definition.setMetaDataLocation(new TestUaaUrlBuilder().withPath("saml/metadata").build());
         assertEquals(URL, definition.getType());
     }
 

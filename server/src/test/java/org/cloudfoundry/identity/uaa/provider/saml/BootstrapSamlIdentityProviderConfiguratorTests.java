@@ -16,6 +16,7 @@ import org.cloudfoundry.identity.uaa.impl.config.YamlMapFactoryBean;
 import org.cloudfoundry.identity.uaa.impl.config.YamlProcessor;
 import org.cloudfoundry.identity.uaa.provider.AbstractIdentityProviderDefinition;
 import org.cloudfoundry.identity.uaa.provider.SamlIdentityProviderDefinition;
+import org.cloudfoundry.identity.uaa.util.TestUaaUrlBuilder;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.io.ByteArrayResource;
@@ -97,6 +98,7 @@ public class BootstrapSamlIdentityProviderConfiguratorTests {
     BootstrapSamlIdentityProviderConfigurator bootstrap = null;
     SamlIdentityProviderDefinition singleAdd = null;
     public static final String singleAddAlias = "sample-alias";
+    public static String samlMetadataUrl = new TestUaaUrlBuilder().withSubdomain("simplesamlphp").withPath("saml2/idp/metadata.php").build();
 
     public static String sampleYaml = "  providers:\n" +
         "    okta-local:\n" +
@@ -149,7 +151,7 @@ public class BootstrapSamlIdentityProviderConfiguratorTests {
         "    simplesamlphp-url:\n" +
         "      storeCustomAttributes: false\n" +
         "      assertionConsumerIndex: 0\n" +
-        "      idpMetadata: http://simplesamlphp.oms.identity.team/saml2/idp/metadata.php\n" +
+        "      idpMetadata: " + samlMetadataUrl + "\n" +
         "      metadataTrustCheck: false\n" +
         "      nameID: urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress\n" +
         "    custom-authncontext:\n" +
