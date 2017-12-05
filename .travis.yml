@@ -10,7 +10,7 @@ matrix:
       sudo: required
       language: java
       env:
-        - TARGET_UAA=https://login.oms.identity.team
+        - TARGET_CF_SYSTEM_DOMAIN=oms.identity.team
         - TESTENV=default
         - TEST_COMMAND=generateDocs
     - os: linux
@@ -19,7 +19,7 @@ matrix:
       sudo: required
       language: java
       env:
-        - TARGET_UAA=https://login.oms.identity.team
+        - TARGET_CF_SYSTEM_DOMAIN=oms.identity.team
         - TESTENV=sqlserver,default
         - TEST_COMMAND=cloudfoundry-identity-server:test
     - os: linux
@@ -28,7 +28,7 @@ matrix:
       sudo: required
       language: java
       env:
-        - TARGET_UAA=https://login.oms.identity.team
+        - TARGET_CF_SYSTEM_DOMAIN=oms.identity.team
         - TESTENV=sqlserver,default
         - TEST_COMMAND=cloudfoundry-identity-uaa:test
     - os: linux
@@ -39,7 +39,7 @@ matrix:
       services:
         - mysql
       env:
-        - TARGET_UAA=https://login.oms.identity.team
+        - TARGET_CF_SYSTEM_DOMAIN=oms.identity.team
         - TESTENV=mysql,default
         - TEST_COMMAND=jacocoRootReportTest
     - os: linux
@@ -50,7 +50,7 @@ matrix:
       services:
         - postgresql
       env:
-        - TARGET_UAA=https://login.oms.identity.team
+        - TARGET_CF_SYSTEM_DOMAIN=oms.identity.team
         - TESTENV=postgresql,default
         - TEST_COMMAND=jacocoRootReportTest
     - os: linux
@@ -59,7 +59,7 @@ matrix:
       sudo: required
       language: java
       env:
-        - TARGET_UAA=https://login.oms.identity.team
+        - TARGET_CF_SYSTEM_DOMAIN=oms.identity.team
         - TESTENV=ldap,default
         - TEST_COMMAND=jacocoRootReportTest
     - os: linux
@@ -68,7 +68,7 @@ matrix:
       sudo: required
       language: java
       env:
-        - TARGET_UAA=https://login.oms.identity.team
+        - TARGET_CF_SYSTEM_DOMAIN=oms.identity.team
         - TESTENV=default
         - TEST_COMMAND=jacocoRootReportTest
     - os: linux
@@ -79,7 +79,7 @@ matrix:
       services:
         - mysql
       env:
-        - TARGET_UAA=https://login.oms.identity.team
+        - TARGET_CF_SYSTEM_DOMAIN=oms.identity.team
         - TESTENV=mysql,default
         - TEST_COMMAND=jacocoRootReportIntegrationTest
     - os: linux
@@ -90,7 +90,7 @@ matrix:
       services:
         - postgresql
       env:
-        - TARGET_UAA=https://login.oms.identity.team
+        - TARGET_CF_SYSTEM_DOMAIN=oms.identity.team
         - TESTENV=postgresql,default
         - TEST_COMMAND=jacocoRootReportIntegrationTest
     - os: linux
@@ -99,7 +99,7 @@ matrix:
       sudo: required
       language: java
       env:
-        - TARGET_UAA=https://login.oms.identity.team
+        - TARGET_CF_SYSTEM_DOMAIN=oms.identity.team
         - TESTENV=ldap,default
         - TEST_COMMAND=jacocoRootReportIntegrationTest
     - os: linux
@@ -108,7 +108,7 @@ matrix:
       sudo: required
       language: java
       env:
-        - TARGET_UAA=https://login.oms.identity.team
+        - TARGET_CF_SYSTEM_DOMAIN=oms.identity.team
         - TESTENV=default
         - TEST_COMMAND=jacocoRootReportIntegrationTest
     # - os: linux
@@ -117,7 +117,7 @@ matrix:
     #   sudo: required
     #   language: java
     #   env:
-    #     - TARGET_UAA=https://login.oms.identity.team
+    #     - TARGET_CF_SYSTEM_DOMAIN=oms.identity.team
     #     - TESTENV=sqlserver,default
     #     - TEST_COMMAND=jacocoRootReportIntegrationTest
 
