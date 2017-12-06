@@ -50,24 +50,14 @@ public class ForcePasswordChangeController {
     public static final String FORCE_PASSWORD_EXPIRED_USER = "FORCE_PASSWORD_EXPIRED_USER";
     private Log logger = LogFactory.getLog(getClass());
 
-    public void setSuccessHandler(AccountSavingAuthenticationSuccessHandler successHandler) {
-        this.successHandler = successHandler;
-    }
-
-    @Autowired
-    @Qualifier("accountSavingAuthenticationSuccessHandler")
-    private AccountSavingAuthenticationSuccessHandler successHandler;
 
     @Autowired
     @Qualifier("resetPasswordService")
     private ResetPasswordService resetPasswordService;
 
     @RequestMapping(value="/force_password_change", method= GET)
-    public String forcePasswordChangePage(Model model, HttpSession session) throws IOException {
-        if(session.getAttribute(FORCE_PASSWORD_EXPIRED_USER) == null) {
-            return "redirect:/login";
-        }
-        String email = ((UaaAuthentication)session.getAttribute(FORCE_PASSWORD_EXPIRED_USER)).getPrincipal().getEmail();
+    public String forcePasswordChangePage(Model model) throws IOException {
+        String email = ((UaaAuthentication)SecurityContextHolder.getContext().getAuthentication()).getPrincipal().getEmail();
         model.addAttribute("email", email);
         return "force_password_change";
     }
@@ -76,16 +66,9 @@ public class ForcePasswordChangeController {
     public String handleForcePasswordChange(Model model,
                                             @RequestParam("password")  String password,
                                             @RequestParam("password_confirmation") String passwordConfirmation,
-                                            HttpServletRequest request,
-                                            HttpServletResponse response,
-                                            HttpSession session) throws IOException {
-        if(session.getAttribute(FORCE_PASSWORD_EXPIRED_USER) == null) {
-            return "redirect:" + request.getContextPath()+"/login";
-        }
-        UaaAuthentication authentication = ((UaaAuthentication)session
-            .getAttribute(FORCE_PASSWORD_EXPIRED_USER));
+                                            HttpServletResponse response) throws IOException {
+        UaaAuthentication authentication = ((UaaAuthentication)SecurityContextHolder.getContext().getAuthentication());
         UaaPrincipal principal = authentication.getPrincipal();
-
         String email = principal.getEmail();
 
         PasswordConfirmationValidation validation =
@@ -99,28 +82,8 @@ public class ForcePasswordChangeController {
         } catch(InvalidPasswordException exception) {
             return handleUnprocessableEntity(model, response, email, exception.getMessagesAsOneString());
         }
-        SavedRequest savedRequest = (SavedRequest) request.getSession().getAttribute(SAVED_REQUEST_SESSION_ATTRIBUTE);
-
-        request.getSession().invalidate();
-        request.getSession(true);
-        if (authentication instanceof UaaAuthentication) {
-            UaaAuthentication uaaAuthentication = (UaaAuthentication)authentication;
-            authentication = new UaaAuthentication(
-                uaaAuthentication.getPrincipal(),
-                new LinkedList<>(uaaAuthentication.getAuthorities()),
-                new UaaAuthenticationDetails(request)
-            );
-            ofNullable(successHandler).ifPresent(handler ->
-                handler.setSavedAccountOptionCookie(request, response, uaaAuthentication)
-            );
-        }
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        if(savedRequest != null) {
-            return "redirect:" + savedRequest.getRedirectUrl();
-        } else {
-            return "redirect:/";
-        }
+        authentication.setRequiresPasswordChange(false);
+        return "redirect:/force_password_change_completed";
     }
 
     public void setResetPasswordService(ResetPasswordService resetPasswordService) {

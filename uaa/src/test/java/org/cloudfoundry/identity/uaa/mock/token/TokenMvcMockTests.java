@@ -435,6 +435,15 @@ public class TokenMvcMockTests extends AbstractTokenMockMvcTests {
         doPasswordGrant(username, SECRET, clientId, SECRET, status().isOk());
     }
 
+    @Test
+    public void password_grant() throws Exception {
+        String username = "testuser"+ generator.generate();
+        String userScopes = "uaa.user";
+        ScimUser user = setUpUser(username, userScopes, OriginKeys.UAA, IdentityZone.getUaa().getId());
+        assertEquals(1, getWebApplicationContext().getBean(JdbcTemplate.class).update("UPDATE users SET passwd_change_required = ? WHERE ID = ?", true, user.getId()));
+        doPasswordGrant(username, SECRET, "cf", "", status().is4xxClientError());
+    }
+
 
     @Test
     public void test_logon_timestamps_with_password_grant() throws Exception {
